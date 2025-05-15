@@ -1,4 +1,4 @@
-package com.S2M.ArtifactTest.Config;
+/*package com.S2M.ArtifactTest.Config;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.*;
@@ -60,4 +60,4 @@ public abstract class JobConfiguration <R, W>{
     }
 
 
-}
+}*/

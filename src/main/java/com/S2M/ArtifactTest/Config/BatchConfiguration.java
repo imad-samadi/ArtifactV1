@@ -1,8 +1,9 @@
-package com.S2M.ArtifactTest.Config;
+/*package com.S2M.ArtifactTest.Config;
 
 import com.S2M.ArtifactTest.Config.Listeners.LoggingJobListener;
 import com.S2M.ArtifactTest.Config.Listeners.LoggingSkipListener;
 import com.S2M.ArtifactTest.Config.Listeners.LoggingStepListener;
+
 import lombok.RequiredArgsConstructor;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.batch.core.JobExecutionListener;
@@ -136,9 +137,10 @@ public class BatchConfiguration extends DefaultBatchConfiguration {
     @ConditionalOnMissingBean
     @Bean
     LoggingSkipListener LoggingSkipListener() {
+
         return new LoggingSkipListener();
     }
 
 
 
-}
+}*/

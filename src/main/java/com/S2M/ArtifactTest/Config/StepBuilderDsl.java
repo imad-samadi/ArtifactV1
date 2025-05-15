@@ -1,4 +1,4 @@
-package com.S2M.ArtifactTest.Config;
+/*package com.S2M.ArtifactTest.Config;
 
 import org.springframework.batch.core.SkipListener;
 import org.springframework.batch.core.Step;
@@ -115,3 +115,4 @@ public class StepBuilderDsl <R, W> {
     public StepBuilderDsl<R,W>  processor(ItemProcessor<R,W> p) { this.processor = p; return this; }
     public StepBuilderDsl<R,W> writer(ItemWriter<W> w)    { this.writer = w; return this; }
 }
+*/
