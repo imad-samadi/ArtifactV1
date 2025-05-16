@@ -38,15 +38,5 @@ public class DelimitedFileReaderConfig<T> extends AbstractFileReaderConfig<T> {
    private final Character quoteCharacter = null; // Or: DelimitedLineTokenizer.DEFAULT_QUOTE_CHARACTER;
 
 
-    @AssertTrue(message = "Delimiter must be a single character when specified")
-    private boolean isValidDelimiter() {
-        if (getCustomLineMapper() != null) return true;
-        return delimiter != null && delimiter.length() == 1;
-    }
 
-    @AssertTrue(message = "Quote character must be different from delimiter")
-    private boolean isQuoteCharValid() {
-        if (quoteCharacter == null || delimiter == null) return true;
-        return quoteCharacter != delimiter.charAt(0);
-    }
 }

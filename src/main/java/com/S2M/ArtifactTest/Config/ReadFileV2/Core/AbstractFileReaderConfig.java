@@ -23,55 +23,50 @@ import java.util.Arrays;
 @SuperBuilder
 public abstract class AbstractFileReaderConfig<T> {
 
-    /**
-     * Path to the input resource (e.g., "classpath:data.csv", "file:/path/to/file.txt").
-     * This field is mandatory.
-     */
     @NotEmpty(message = "Resource path (resourcePath) cannot be null or empty.")
     protected final String resourcePath;
 
     /**
-     * Target class for each record (e.g., MyDto.class).
+     * Target class for records. Essential if a default FieldSetMapper strategy is employed
+     * that relies on this type, like BeanWrapperFieldSetMapper).
      */
     protected final Class<T> itemType;
 
     /**
-     * Names of the fields/columns in the file, used for mapping to itemType properties.
+     * Field names. Essential if a default Tokenizer strategy is employed
      */
     protected final String[] names;
 
-    /**
-     * Number of lines to skip at the beginning of the file (e.g., for a header row).
-     * Must be a non-negative integer. Defaults to 0.
-     */
     @Min(value = 0, message = "Lines to skip (linesToSkip) must be greater than or equal to 0.")
     @Builder.Default
-    protected final int linesToSkip = 1;
+    protected final int linesToSkip = 0;
 
-
-    /**
-     * When using a custom LineMapper:
-     * - itemType and names are ignored
-     * - File format-specific settings (like delimiter) are not used
-     */
-    @Builder.Default // Default to null, meaning use default logic
+    @Builder.Default
     protected final LineMapper<T> customLineMapper = null;
 
-
-    @AssertTrue(message = "Either customLineMapper or (itemType and names) must be provided")
-    protected boolean isValidConfigCombination() {
-        if (customLineMapper != null) {
+    @AssertTrue(message = "'itemType' must be provided when a customLineMapper is not used, as it's generally needed for default mapping strategies.")
+    private boolean isItemTypeAvailableForDefaultProcessing() {
+        if (getCustomLineMapper() != null) {
             return true;
         }
-        return itemType != null && names != null && names.length > 0;
+        return getItemType() != null;
     }
 
-    @AssertTrue(message = "names must not contain empty values")
-    protected boolean isValidNames() {
-        if (names == null) return true;
-        return Arrays.stream(names).noneMatch(StringUtils::isEmpty);
-    }
+    // Note: Validation for 'names' being present for default tokenizers
+    // will now reside within the default TokenizerProvider implementations.
 
+    @AssertTrue(message = "If 'names' array is provided, its elements must not be null or empty strings.")
+    protected boolean areNamesElementsValidIfProvided() {
+        if (getNames() == null) {
+            return true;
+        }
+        for (String name : getNames()) {
+            if (name == null || name.trim().isEmpty()) {
+                return false;
+            }
+        }
+        return true;
+    }
 
 
 }

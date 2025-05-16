@@ -7,6 +7,7 @@ import com.S2M.ArtifactTest.Config.ReadFileV2.ReaderTest.DTO.TransactionDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
+import org.springframework.batch.core.configuration.support.DefaultBatchConfiguration;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
@@ -23,7 +24,7 @@ import javax.sql.DataSource;
 
 @Configuration
 @RequiredArgsConstructor
-public class BatchConfig2 {
+public class BatchConfig2  {
 
     // DataSource for JDBC-based steps
     private final DataSource dataSource;
@@ -68,7 +69,8 @@ public class BatchConfig2 {
         DelimitedFileReaderConfig<Transaction> readerConfig = DelimitedFileReaderConfig.<Transaction>builder()
                 .resourcePath("classpath:transactions.csv") // Path to your CSV file
                 .itemType(Transaction.class)                 // The DTO class for direct mapping from CSV
-                .names(new String[]{"reference", "amount", "currency", "accountNumber"}) // CSV column name
+                .names(new String[]{"reference", "amount", "currency", "accountNumber"})
+                .linesToSkip(1)
                 .build();
 
 
@@ -88,9 +90,11 @@ public class BatchConfig2 {
     public Job simpleTransactionJob(
             @Qualifier("simpleTransactionStep") Step simpleTransactionStep
     ) {
-        return new JobBuilder("zsf12S", jobRepository)
+        return new JobBuilder("z12333", jobRepository)
                 .flow(simpleTransactionStep)
                 .end()
                 .build();
     }
+
+
 }

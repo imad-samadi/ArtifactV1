@@ -1,42 +1,75 @@
 package com.S2M.ArtifactTest.Config.ReadFileV2.Core;
 
+import com.S2M.ArtifactTest.Config.ReadFileV2.Core.SPI.FieldSetMapperProvider;
+import com.S2M.ArtifactTest.Config.ReadFileV2.Core.SPI.TokenizerProvider;
+import com.S2M.ArtifactTest.Config.ReadFileV2.Core.Validation.ConfigValidator;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.item.ItemReader;
+import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
+import org.springframework.batch.item.file.mapping.DefaultLineMapper;
+import org.springframework.batch.item.file.mapping.FieldSetMapper;
+import org.springframework.batch.item.file.transform.LineTokenizer;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Optional;
 @Component
+@Slf4j
 public class GenericReaderFactory {
 
-    private final List<ItemReaderBuilder<?, ?>> builders;
+    private final ConfigValidator configValidator;
+    private final ResourceLoader resourceLoader;
+    private final List<TokenizerProvider> tokenizerProviders;
+    private final FieldSetMapperProvider fieldSetMapperProvider;
 
 
-    // Assuming ItemReaderBuilder interface and implementations are in the same package or imported
-    public GenericReaderFactory(List<ItemReaderBuilder<?, ?>> builders) {
-        this.builders = builders != null ? List.copyOf(builders) : List.of();
+    public GenericReaderFactory(
+            ConfigValidator configValidator,
+            ResourceLoader resourceLoader,
+            List<TokenizerProvider> tokenizerProviders,
+            FieldSetMapperProvider<?> fieldSetMapperProvider) {
+        this.configValidator = configValidator;
+        this.resourceLoader = resourceLoader;
+        this.tokenizerProviders = List.copyOf(tokenizerProviders);
+        this.fieldSetMapperProvider = fieldSetMapperProvider;
+
+
+        log.info("GenericReaderFactory: Initialized with {} TokenizerProvider(s).", this.tokenizerProviders.size());
+        this.tokenizerProviders.forEach(p -> System.out.println(" - TokenizerProvider: " + p.getClass().getName()));
+        log.info("GenericReaderFactory: Using FieldSetMapperProvider: " + this.fieldSetMapperProvider.getClass().getName());
     }
 
     @SuppressWarnings("unchecked")
     public <T> ItemReader<T> createReader(AbstractFileReaderConfig<T> config) {
-        if (config == null) {
-            // Or delegate null check to the specific builder's validate method
-            throw new IllegalArgumentException("Configuration cannot be null.");
-        }
+        configValidator.validate(config); // Step 1: Validate POJO annotations
 
-        Optional<ItemReaderBuilder<?, ?>> foundBuilder = builders.stream()
-                .filter(builder -> builder.supports(config))
-                .findFirst();
+        String readerNameSuffix = config.getClass().getSimpleName().replace("FileReaderConfig", "");
+        String readerName = (config.getItemType() != null ? config.getItemType().getSimpleName() : "CustomMapped")
+                + readerNameSuffix + "Reader";
 
-        if (foundBuilder.isPresent()) {
+        FlatFileItemReaderBuilder<T> springBatchItemReaderBuilder = new FlatFileItemReaderBuilder<T>()
+                .name(readerName)
+                .resource(resourceLoader.getResource(config.getResourcePath()))
+                .linesToSkip(config.getLinesToSkip());
 
-            ItemReaderBuilder<T, AbstractFileReaderConfig<T>> specificBuilder =
-                    (ItemReaderBuilder<T, AbstractFileReaderConfig<T>>) foundBuilder.get();
-
-
-            return specificBuilder.build(config);
+        if (config.getCustomLineMapper() != null) {
+            springBatchItemReaderBuilder.lineMapper(config.getCustomLineMapper());
         } else {
-            throw new IllegalArgumentException("No suitable ItemReaderBuilder found for config type: " +
-                    config.getClass().getName());
+            TokenizerProvider selectedTokenizerProvider = tokenizerProviders.stream()
+                    .filter(tp -> tp.supports(config))
+                    .findFirst()
+                    .orElseThrow(() -> new IllegalStateException("No suitable TokenizerProvider found for config: " + config.getClass().getName()));
+
+            // createTokenizer and createFieldSetMapper will throw if config lacks their required fields
+            LineTokenizer tokenizer = selectedTokenizerProvider.createTokenizer(config);
+            FieldSetMapper<T> mapper = (FieldSetMapper<T>) fieldSetMapperProvider.createFieldSetMapper(config);
+
+            DefaultLineMapper<T> defaultLineMapper = new DefaultLineMapper<>();
+            defaultLineMapper.setLineTokenizer(tokenizer);
+            defaultLineMapper.setFieldSetMapper(mapper);
+            springBatchItemReaderBuilder.lineMapper(defaultLineMapper);
         }
+        return springBatchItemReaderBuilder.build();
     }
 }
