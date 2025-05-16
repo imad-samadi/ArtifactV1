@@ -88,7 +88,7 @@ public class BatchConfig2 {
     public Job simpleTransactionJob(
             @Qualifier("simpleTransactionStep") Step simpleTransactionStep
     ) {
-        return new JobBuilder("zsfddsss", jobRepository)
+        return new JobBuilder("zsf12S", jobRepository)
                 .flow(simpleTransactionStep)
                 .end()
                 .build();

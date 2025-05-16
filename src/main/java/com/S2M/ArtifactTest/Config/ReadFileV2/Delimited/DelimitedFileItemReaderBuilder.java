@@ -1,6 +1,7 @@
 package com.S2M.ArtifactTest.Config.ReadFileV2.Delimited;
 
 import com.S2M.ArtifactTest.Config.ReadFileV2.Core.AbstractFileReaderConfig;
+import com.S2M.ArtifactTest.Config.ReadFileV2.Core.Util.MapperUtil;
 import com.S2M.ArtifactTest.Config.ReadFileV2.Delimited.Config.DelimitedFileReaderConfig;
 import com.S2M.ArtifactTest.Config.ReadFileV2.Core.Exceptions.ReaderConfigValidationException;
 import com.S2M.ArtifactTest.Config.ReadFileV2.Core.ItemReaderBuilder;
@@ -71,12 +72,11 @@ public class DelimitedFileItemReaderBuilder <T> implements ItemReaderBuilder<T, 
                 tokenizer.setQuoteCharacter(config.getQuoteCharacter());
             }
 
-            BeanWrapperFieldSetMapper<T> fieldSetMapper = new BeanWrapperFieldSetMapper<>();
-            fieldSetMapper.setTargetType(config.getItemType()); // Assured non-null by validate()
+
 
             DefaultLineMapper<T> defaultLineMapper = new DefaultLineMapper<>();
             defaultLineMapper.setLineTokenizer(tokenizer);
-            defaultLineMapper.setFieldSetMapper(fieldSetMapper);
+            defaultLineMapper.setFieldSetMapper(MapperUtil.DefaultFieldSetMapper(config.getItemType()));
 
             springBatchItemReaderBuilder.lineMapper(defaultLineMapper);
         }

@@ -1,6 +1,7 @@
 package com.S2M.ArtifactTest.Config.ReadFileV2.Fixedlength;
 import com.S2M.ArtifactTest.Config.ReadFileV2.Core.AbstractFileReaderConfig;
 import com.S2M.ArtifactTest.Config.ReadFileV2.Core.Exceptions.ReaderConfigValidationException;
+import com.S2M.ArtifactTest.Config.ReadFileV2.Core.Util.MapperUtil;
 import com.S2M.ArtifactTest.Config.ReadFileV2.Fixedlength.Config.FixedLengthFileReaderConfig;
 import com.S2M.ArtifactTest.Config.ReadFileV2.Core.ItemReaderBuilder;
 import jakarta.validation.ConstraintViolation;
@@ -49,11 +50,9 @@ public class  FixedLengthFileItemReaderBuilder<T> implements ItemReaderBuilder<T
             FixedLengthTokenizer tokenizer = new FixedLengthTokenizer();
             tokenizer.setColumns(config.toRangeArray()); // Relies on ranges being valid
             tokenizer.setNames(config.getNames());       // Relies on names being valid
-            BeanWrapperFieldSetMapper<T> fieldSetMapper = new BeanWrapperFieldSetMapper<>();
-            fieldSetMapper.setTargetType(config.getItemType()); // Relies on itemType being valid
             DefaultLineMapper<T> defaultLineMapper = new DefaultLineMapper<>();
             defaultLineMapper.setLineTokenizer(tokenizer);
-            defaultLineMapper.setFieldSetMapper(fieldSetMapper);
+            defaultLineMapper.setFieldSetMapper(MapperUtil.DefaultFieldSetMapper(config.getItemType()));
             springBatchItemReaderBuilder.lineMapper(defaultLineMapper);
         }
 
