@@ -1,8 +1,7 @@
 package com.S2M.ArtifactTest.Config.ReadFileV2.ReaderTest;
 
-import com.S2M.ArtifactTest.Config.ReadFileV2.Config.DelimitedFileReaderConfig;
-import com.S2M.ArtifactTest.Config.ReadFileV2.Config.FixedLengthFileReaderConfig;
-import com.S2M.ArtifactTest.Config.ReadFileV2.ItemReaders.GenericReaderFactory;
+import com.S2M.ArtifactTest.Config.ReadFileV2.Delimited.Config.DelimitedFileReaderConfig;
+import com.S2M.ArtifactTest.Config.ReadFileV2.Core.GenericReaderFactory;
 import com.S2M.ArtifactTest.Config.ReadFileV2.ReaderTest.DTO.Transaction;
 import com.S2M.ArtifactTest.Config.ReadFileV2.ReaderTest.DTO.TransactionDTO;
 import lombok.RequiredArgsConstructor;

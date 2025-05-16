@@ -1,4 +1,4 @@
-package com.S2M.ArtifactTest.Config.ReadFileV2.Config;
+package com.S2M.ArtifactTest.Config.ReadFileV2.Core;
 
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Min;

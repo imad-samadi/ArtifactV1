@@ -1,4 +1,5 @@
-package com.S2M.ArtifactTest.Config.ReadFileV2.Config;
+package com.S2M.ArtifactTest.Config.ReadFileV2.Delimited.Config;
+import com.S2M.ArtifactTest.Config.ReadFileV2.Core.AbstractFileReaderConfig;
 import jakarta.validation.constraints.AssertTrue;
 import lombok.Builder;
 import lombok.Getter;

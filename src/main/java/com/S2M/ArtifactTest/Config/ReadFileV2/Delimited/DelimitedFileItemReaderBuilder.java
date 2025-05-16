@@ -1,8 +1,9 @@
-package com.S2M.ArtifactTest.Config.ReadFileV2.ItemReaders;
+package com.S2M.ArtifactTest.Config.ReadFileV2.Delimited;
 
-import com.S2M.ArtifactTest.Config.ReadFileV2.Config.AbstractFileReaderConfig;
-import com.S2M.ArtifactTest.Config.ReadFileV2.Config.DelimitedFileReaderConfig;
-import com.S2M.ArtifactTest.Config.ReadFileV2.Exceptions.ReaderConfigValidationException;
+import com.S2M.ArtifactTest.Config.ReadFileV2.Core.AbstractFileReaderConfig;
+import com.S2M.ArtifactTest.Config.ReadFileV2.Delimited.Config.DelimitedFileReaderConfig;
+import com.S2M.ArtifactTest.Config.ReadFileV2.Core.Exceptions.ReaderConfigValidationException;
+import com.S2M.ArtifactTest.Config.ReadFileV2.Core.ItemReaderBuilder;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;

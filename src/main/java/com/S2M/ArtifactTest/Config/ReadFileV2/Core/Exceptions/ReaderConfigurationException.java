@@ -1,4 +1,4 @@
-package com.S2M.ArtifactTest.Config.ReadFileV2.Exceptions;
+package com.S2M.ArtifactTest.Config.ReadFileV2.Core.Exceptions;
 
 public class ReaderConfigurationException extends RuntimeException{
 

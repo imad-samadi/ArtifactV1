@@ -1,6 +1,5 @@
-package com.S2M.ArtifactTest.Config.ReadFileV2.ItemReaders;
+package com.S2M.ArtifactTest.Config.ReadFileV2.Core;
 
-import com.S2M.ArtifactTest.Config.ReadFileV2.Config.AbstractFileReaderConfig;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.stereotype.Component;
 

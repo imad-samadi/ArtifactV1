@@ -1,4 +1,4 @@
-package com.S2M.ArtifactTest.Config.ReadFileV2.Exceptions;
+package com.S2M.ArtifactTest.Config.ReadFileV2.Core.Exceptions;
 
 import java.util.Collections;
 import java.util.List;
