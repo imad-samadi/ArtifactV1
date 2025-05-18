@@ -1,8 +1,8 @@
-package com.S2M.ArtifactTest.Config.ReadFileV2.ReaderTest;
+package com.S2M.ArtifactTest.Demo;
 
 
-import com.S2M.ArtifactTest.Config.ReadFileV2.ReaderTest.DTO.Transaction;
-import com.S2M.ArtifactTest.Config.ReadFileV2.ReaderTest.DTO.TransactionDTO;
+import com.S2M.ArtifactTest.Demo.DTO.Transaction;
+import com.S2M.ArtifactTest.Demo.DTO.TransactionDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.item.ItemProcessor;
 

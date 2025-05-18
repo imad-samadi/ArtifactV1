@@ -1,9 +1,9 @@
-package com.S2M.ArtifactTest.Config.ReadFileV2.ReaderTest;
+package com.S2M.ArtifactTest.Demo;
 
-import com.S2M.ArtifactTest.Config.ReadFileV2.Delimited.Config.DelimitedFileReaderConfig;
-import com.S2M.ArtifactTest.Config.ReadFileV2.Core.GenericReaderFactory;
-import com.S2M.ArtifactTest.Config.ReadFileV2.ReaderTest.DTO.Transaction;
-import com.S2M.ArtifactTest.Config.ReadFileV2.ReaderTest.DTO.TransactionDTO;
+import com.S2M.ArtifactTest.Demo.DTO.Transaction;
+import com.S2M.ArtifactTest.Demo.DTO.TransactionDTO;
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Configuration;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
@@ -24,7 +24,7 @@ import javax.sql.DataSource;
 
 @Configuration
 @RequiredArgsConstructor
-public class BatchConfig2  {
+public class BatchConfig2 {
 
     // DataSource for JDBC-based steps
     private final DataSource dataSource;
@@ -32,7 +32,6 @@ public class BatchConfig2  {
     private final JobRepository jobRepository;
     // Transaction manager for chunk boundaries
     private final PlatformTransactionManager transactionManager;
-
 
     @Bean("TransactionDtoJdbcWriter")
     public ItemWriter<TransactionDTO> transactionDtoJdbcWriter() {
@@ -45,56 +44,27 @@ public class BatchConfig2  {
 
     @Bean("simpleTransactionStep")
     public Step simpleTransactionStep(
-           @Qualifier("READER") ItemReader<Transaction> reader,
+            @Qualifier("genericFlatFileItemReader") ItemReader<Transaction> reader,
 
             ItemProcessor<Transaction, TransactionDTO> transactionProcessor,
-           ItemWriter<TransactionDTO> compositeWriter
+            ItemWriter<TransactionDTO> compositeWriter
     ) {
         return new StepBuilder("simpleTransactionStep", jobRepository)
-                // chunk-oriented step configuration
+
                 .<Transaction, TransactionDTO>chunk(10, transactionManager)
                 .reader(reader)
                 .processor(transactionProcessor)
                 .writer(compositeWriter)
-
-                .faultTolerant()
-                .skip(DuplicateKeyException.class)
-                .skipLimit(1)
-                .processorNonTransactional()
                 .build();
-    }
-    @Bean("READER")
-    public ItemReader<Transaction> reader(GenericReaderFactory genericReaderFactory) {
-
-        DelimitedFileReaderConfig<Transaction> readerConfig = DelimitedFileReaderConfig.<Transaction>builder()
-                .resourcePath("classpath:transactions.csv") // Path to your CSV file
-                .itemType(Transaction.class)                 // The DTO class for direct mapping from CSV
-                .names(new String[]{"reference", "amount", "currency", "accountNumber"})
-                .linesToSkip(1)
-                .build();
-
-
-        /*FixedLengthFileReaderConfig<Transaction> readerConfig = FixedLengthFileReaderConfig.<Transaction>builder()
-                .resourcePath("classpath:transactionsFixedLength.txt") // Path to your fixed-length file
-                .itemType(Transaction.class)
-                .names(new String[]{"reference", "amount", "currency", "accountNumber"})
-                .ranges(new String[]{"1-6","7-12","13-15","16-19"}) // Set the ranges for fixed-length
-                .linesToSkip(0) // Assuming no header lines in this fixed-length format
-                // .customLineMapper(null) // Using default processing
-                .build();*/
-
-        return genericReaderFactory.createReader(readerConfig);
     }
 
     @Bean
     public Job simpleTransactionJob(
             @Qualifier("simpleTransactionStep") Step simpleTransactionStep
     ) {
-        return new JobBuilder("z12333", jobRepository)
+        return new JobBuilder("AWWSSS", jobRepository)
                 .flow(simpleTransactionStep)
                 .end()
                 .build();
     }
-
-
 }

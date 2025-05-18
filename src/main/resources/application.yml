@@ -27,3 +27,23 @@ spring:
     job:
       enabled: true
 
+batch:
+  input:
+
+    filePath: "file:C:/Users/msi/Downloads/ArtifactTest (1)/ArtifactTest/src/main/resources/transactionsFixedLength.txt"
+    targetType: "com.S2M.ArtifactTest.Demo.DTO.Transaction"
+    names:
+      - "reference"
+      - "amount"
+      - "currency"
+      - "accountNumber"
+    linesToSkip: 1
+    encoding: "UTF-8"
+
+
+    # --- Delimited File Specific Properties ---
+    #type: DELIMITED
+    #delimiter: ";"
+    # quoteCharacter: "\"" # Optional
+    type: fixed_length
+    column-ranges: "1-6,7-12,13-15,16-19"

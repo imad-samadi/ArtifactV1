@@ -1,4 +1,4 @@
-package com.S2M.ArtifactTest.Config.ReadFileV2.ReaderTest.DTO;
+package com.S2M.ArtifactTest.Demo.DTO;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

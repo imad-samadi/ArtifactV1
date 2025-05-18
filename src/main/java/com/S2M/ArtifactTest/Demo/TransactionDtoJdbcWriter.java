@@ -1,7 +1,6 @@
-package com.S2M.ArtifactTest.Config.ReadFileV2.ReaderTest;
+package com.S2M.ArtifactTest.Demo;
 
-
-import com.S2M.ArtifactTest.Config.ReadFileV2.ReaderTest.DTO.TransactionDTO;
+import com.S2M.ArtifactTest.Demo.DTO.TransactionDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ItemWriter;
