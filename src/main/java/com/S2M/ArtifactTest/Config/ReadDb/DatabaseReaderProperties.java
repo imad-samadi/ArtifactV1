@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
  * Maps to 'batch.input.database' prefix in application.yml
  * Handles both required and optional properties with validation
  */
-@Getter
+/*@Getter
 @Setter
 @Validated
 @Slf4j
@@ -122,4 +122,4 @@ public class DatabaseReaderProperties {
                         .filter(pd -> pd.getReadMethod() != null && !"class".equals(pd.getName()))
                         .findFirst());
     }
-}
+}*/

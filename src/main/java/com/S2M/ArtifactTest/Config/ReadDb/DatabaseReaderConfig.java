@@ -26,12 +26,12 @@ import java.util.Map;
  * Main configuration class for database reader setup
  * Creates and wires all necessary components
  */
-@Configuration
+/*@Configuration
 @RequiredArgsConstructor
 @Slf4j
 @EnableConfigurationProperties(DatabaseReaderProperties.class)
 @ConditionalOnProperty(prefix = "batch.input.database", name = "targetType", matchIfMissing = false)
-public class DatabaseReaderConfig {
+/*public class DatabaseReaderConfig {
 
 
     private final DataSource dataSource;
@@ -85,3 +85,4 @@ public class DatabaseReaderConfig {
         return new BeanPropertyRowMapper<>(props.getResolvedTargetType());
     }
 }
+*/

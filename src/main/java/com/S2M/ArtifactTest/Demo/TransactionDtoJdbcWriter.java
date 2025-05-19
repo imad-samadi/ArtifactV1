@@ -20,7 +20,7 @@ public class TransactionDtoJdbcWriter implements ItemWriter<TransactionDTO>  {
                     "(reference, amount, account_number) " +
                     "VALUES (:reference, :amount, :accountNumber)";
 
-    private JdbcBatchItemWriter<TransactionDTO> delegate;
+    private JdbcBatchItemWriter<TransactionDTO> delegate ;
 
 
     private void initDelegate() {

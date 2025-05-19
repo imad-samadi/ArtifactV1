@@ -4,10 +4,10 @@ import com.S2M.ArtifactTest.Demo.DTO.Transaction;
 import com.S2M.ArtifactTest.Demo.DTO.TransactionDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
-import lombok.RequiredArgsConstructor;
+
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
-import org.springframework.batch.core.configuration.support.DefaultBatchConfiguration;
+
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
@@ -16,8 +16,7 @@ import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.dao.DuplicateKeyException;
+
 import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.sql.DataSource;
@@ -44,7 +43,7 @@ public class BatchConfig2 {
 
     @Bean("simpleTransactionStep")
     public Step simpleTransactionStep(
-            @Qualifier("genericFlatFileItemReader") ItemReader<Transaction> reader,
+            @Qualifier("genericItemReader") ItemReader<Transaction> reader,
 
             ItemProcessor<Transaction, TransactionDTO> transactionProcessor,
             ItemWriter<TransactionDTO> compositeWriter
@@ -62,7 +61,7 @@ public class BatchConfig2 {
     public Job simpleTransactionJob(
             @Qualifier("simpleTransactionStep") Step simpleTransactionStep
     ) {
-        return new JobBuilder("AWWSSS", jobRepository)
+        return new JobBuilder("AWR33s", jobRepository)
                 .flow(simpleTransactionStep)
                 .end()
                 .build();
