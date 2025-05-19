@@ -1,5 +1,6 @@
 package com.S2M.ArtifactTest.Config.ReadDb;
 
+import com.S2M.ArtifactTest.Config.ReadFile.Core.Exceptions.ConfigurationException;
 import com.S2M.ArtifactTest.Config.ReadFile.ReadProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -10,6 +11,7 @@ import org.springframework.batch.item.database.PagingQueryProvider;
 import org.springframework.batch.item.database.builder.JdbcPagingItemReaderBuilder;
 import org.springframework.batch.item.database.support.SqlPagingQueryProviderFactoryBean;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -19,34 +21,53 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.util.StringUtils;
 
 import javax.sql.DataSource;
-import java.util.Arrays;
 import java.util.Map;
 
 /**
- * Main configuration class for database reader setup
- * Creates and wires all necessary components
+ * Configuration for JDBC paging ItemReader.
+ * Active when batch.input.database.targetType is defined.
  */
-/*@Configuration
+@Configuration
 @RequiredArgsConstructor
 @Slf4j
 @EnableConfigurationProperties(DatabaseReaderProperties.class)
-@ConditionalOnProperty(prefix = "batch.input.database", name = "targetType", matchIfMissing = false)
-/*public class DatabaseReaderConfig {
+@ConditionalOnProperty(prefix = "batch.input.database", name = "targetType")
+public class DatabaseReaderConfig {
 
+
+    @ConditionalOnMissingBean(name = "targetTypeClass")
+    @Bean(name = "targetTypeClass")
+
+    public Class<?> targetTypeClass() {
+        try {
+            return Class.forName(this.props.getTargetType());
+        } catch (ClassNotFoundException e) {
+            throw new ConfigurationException(
+                    "Invalid target class: " + this.props.getTargetType(), e
+            );
+        }
+    }
 
     private final DataSource dataSource;
-    private final DatabaseReaderProperties props; // Renamed for brevity
+    private final DatabaseReaderProperties props;
 
-    @Bean(name = "genericDatabaseItemReader") // More generic name
-    @StepScope
-    public JdbcPagingItemReader<?> databaseItemReader(
+    /**
+     * Builds a type-safe JdbcPagingItemReader<T> based on resolved targetTypeClass.
+     */
+    @Bean(name = "genericDatabaseItemReader")
+
+    public <T> JdbcPagingItemReader<T> databaseItemReader(
             @Qualifier("databasePagingQueryProvider") PagingQueryProvider queryProvider,
-            @Qualifier("databaseRowMapper") RowMapper<?> rowMapper) { // Renamed qualifier
+            @Qualifier("databaseRowMapper") RowMapper<T> rowMapper,
+            @Qualifier("targetTypeClass") Class<T> targetTypeClass) {
 
-        log.info("Configuring genericDatabaseItemReader for target: {}, page size: {}", props.getTargetType(), props.getPageSize());
-        if (!props.getParameterValues().isEmpty()) log.debug("Reader parameters: {}", props.getParameterValues());
+        log.info("Configuring genericDatabaseItemReader for target: {}, page size: {}",
+                props.getTargetType(), props.getPageSize());
+        if (!props.getParameterValues().isEmpty()) {
+            log.debug("Reader parameters: {}", props.getParameterValues());
+        }
 
-        return new JdbcPagingItemReaderBuilder<>()
+        return new JdbcPagingItemReaderBuilder<T>()
                 .name("genericDatabaseItemReader")
                 .dataSource(dataSource)
                 .queryProvider(queryProvider)
@@ -56,19 +77,22 @@ import java.util.Map;
                 .build();
     }
 
+    /**
+     * Creates the SQL PagingQueryProvider based on properties.
+     */
     @Bean(name = "databasePagingQueryProvider")
     public PagingQueryProvider queryProvider() throws Exception {
         SqlPagingQueryProviderFactoryBean factory = new SqlPagingQueryProviderFactoryBean();
         factory.setDataSource(dataSource);
 
-        String actualSelect = props.getActualSelectClause();
-        String actualFrom = props.getActualTableName();
-        Map<String, Order> actualSorts = props.getActualSortOrders();
+        String select = props.getActualSelectClause();
+        String from   = props.getActualTableName();
+        Map<String, Order> sorts = props.getActualSortOrders();
 
-        log.debug("QueryProvider - SELECT: [{}], FROM: [{}], SORT: [{}]", actualSelect, actualFrom, actualSorts);
-        factory.setSelectClause(actualSelect);
-        factory.setFromClause(actualFrom);
-        factory.setSortKeys(actualSorts);
+        log.debug("QueryProvider - SELECT: [{}], FROM: [{}], SORT: [{}]", select, from, sorts);
+        factory.setSelectClause(select);
+        factory.setFromClause("FROM " + from);
+        factory.setSortKeys(sorts);
 
         if (StringUtils.hasText(props.getWhereClause())) {
             log.debug("QueryProvider - WHERE: [{}]", props.getWhereClause());
@@ -77,12 +101,13 @@ import java.util.Map;
         return factory.getObject();
     }
 
-    @Bean(name = "databaseRowMapper") // Renamed bean
-    public RowMapper<?> databaseRowMapper() {
-        if (props.getResolvedTargetType() == null)
-            throw new IllegalStateException("targetType not resolved in properties.");
-        log.debug("Creating BeanPropertyRowMapper for: {}", props.getResolvedTargetType().getName());
-        return new BeanPropertyRowMapper<>(props.getResolvedTargetType());
+    /**
+     * Creates a RowMapper<T> for the target type via BeanPropertyRowMapper.
+     */
+    @Bean(name = "databaseRowMapper")
+    public <T> RowMapper<T> databaseRowMapper(
+            @Qualifier("targetTypeClass") Class<T> targetTypeClass) {
+        log.debug("Creating BeanPropertyRowMapper for: {}", targetTypeClass.getName());
+        return new BeanPropertyRowMapper<>(targetTypeClass);
     }
 }
-*/

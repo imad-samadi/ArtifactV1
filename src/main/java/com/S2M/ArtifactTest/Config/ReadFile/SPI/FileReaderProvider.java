@@ -10,12 +10,7 @@ import org.springframework.util.Assert;
 import java.io.IOException;
 public interface FileReaderProvider {
 
-    /**
-     * Checks if this provider can create an ItemReader for the given configuration.
-     * @param props The configuration properties.
-     * @return true if this provider supports the configuration, false otherwise.
-     */
-    boolean supports(ReadProperties props);
+
 
     /**
      * Creates an ItemReader.

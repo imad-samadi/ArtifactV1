@@ -39,12 +39,7 @@ public class DefaultFlatFileReaderProvider  implements FileReaderProvider {
         this.lineMapper = lineMapper;
     }
 
-    @Override
-    public boolean supports(ReadProperties props) {
-        return props != null &&
-                (props.getType() == ReadProperties.FileType.DELIMITED ||
-                        props.getType() == ReadProperties.FileType.FIXED_LENGTH);
-    }
+
 
     @Override
     @SuppressWarnings("unchecked")

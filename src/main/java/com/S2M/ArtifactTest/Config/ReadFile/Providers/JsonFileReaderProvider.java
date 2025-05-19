@@ -23,11 +23,6 @@ public class JsonFileReaderProvider implements FileReaderProvider {
 
 
     @Override
-    public boolean supports(ReadProperties props) {
-        return props != null && props.getType() == ReadProperties.FileType.JSON;
-    }
-
-    @Override
     public <T> ItemReader<T> createReader(ReadProperties props, Class<T> targetType) {
 
 

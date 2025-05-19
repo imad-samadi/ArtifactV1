@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
  * Maps to 'batch.input.database' prefix in application.yml
  * Handles both required and optional properties with validation
  */
-/*@Getter
+@Getter
 @Setter
 @Validated
 @Slf4j
@@ -59,7 +59,7 @@ public class DatabaseReaderProperties {
         } catch (ClassNotFoundException e) {
             throw new ConfigurationException("Could not resolve database reader targetType: " + targetType, e);
         }
-        // Ensure maps are not null if YAML binding results in null
+
         if (this.sortKeys == null) this.sortKeys = new LinkedHashMap<>();
         if (this.parameterValues == null) this.parameterValues = new HashMap<>();
         if (this.columnMappings == null) this.columnMappings = new HashMap<>();
@@ -73,12 +73,15 @@ public class DatabaseReaderProperties {
         return clause != null && clause.matches(".*:[a-zA-Z_][a-zA-Z0-9_]*.*");
     }
 
+
+    //if table Name not provided get it from the class
     public String getActualTableName() {
         if (StringUtils.hasText(tableName)) return tableName;
         if (resolvedTargetType == null) throw new IllegalStateException("targetType not resolved.");
         return NamingStrategy.DEFAULT.toTableName(resolvedTargetType.getSimpleName());
     }
 
+    //if select * not provided
     public String getActualSelectClause() {
         if (StringUtils.hasText(selectClause)) return selectClause;
         if (resolvedTargetType == null) throw new IllegalStateException("targetType not resolved.");
@@ -90,6 +93,11 @@ public class DatabaseReaderProperties {
         if (columnNames.isEmpty()) throw new ConfigurationException("Could not derive select clause for " + targetType);
         return String.join(", ", columnNames);
     }
+
+
+
+
+
 
     public Map<String, org.springframework.batch.item.database.Order> getActualSortOrders() {
         if (resolvedTargetType == null) throw new IllegalStateException("targetType not resolved.");
@@ -122,4 +130,4 @@ public class DatabaseReaderProperties {
                         .filter(pd -> pd.getReadMethod() != null && !"class".equals(pd.getName()))
                         .findFirst());
     }
-}*/
+}

@@ -43,7 +43,7 @@ public class BatchConfig2 {
 
     @Bean("simpleTransactionStep")
     public Step simpleTransactionStep(
-            @Qualifier("genericItemReader") ItemReader<Transaction> reader,
+            @Qualifier("genericDatabaseItemReader") ItemReader<Transaction> reader,
 
             ItemProcessor<Transaction, TransactionDTO> transactionProcessor,
             ItemWriter<TransactionDTO> compositeWriter
@@ -61,7 +61,7 @@ public class BatchConfig2 {
     public Job simpleTransactionJob(
             @Qualifier("simpleTransactionStep") Step simpleTransactionStep
     ) {
-        return new JobBuilder("AWR33s", jobRepository)
+        return new JobBuilder("AS111XX", jobRepository)
                 .flow(simpleTransactionStep)
                 .end()
                 .build();

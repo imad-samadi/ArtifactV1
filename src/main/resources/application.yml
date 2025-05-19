@@ -27,16 +27,16 @@ spring:
     job:
       enabled: true
 
-batch:
-  input:
+#batch:
+#  input:
 
-    filePath: "file:C:/Users/msi/Downloads/ArtifactTest (1)/ArtifactTest/src/main/resources/transactions.json"
-    targetType: "com.S2M.ArtifactTest.Demo.DTO.Transaction"
-    names:
-      - "reference"
-      - "amount"
-      - "currency"
-      - "accountNumber"
+#    filePath: "file:C:/Users/msi/Downloads/ArtifactTest (1)/ArtifactTest/src/main/resources/transactions.json"
+#    targetType: "com.S2M.ArtifactTest.Demo.DTO.Transaction"
+#    names:
+#      - "reference"
+#      - "amount"
+#      - "currency"
+#      - "accountNumber"
    # linesToSkip: 1
    # encoding: "UTF-8"
 
@@ -45,5 +45,15 @@ batch:
     #type: DELIMITED
     #delimiter: ","
     # quoteCharacter: "\"" # Optional
-    type: json
+ #   type: json
     #column-ranges: "1-6,7-12,13-15,16-19"
+
+batch:
+  input:
+    database:
+      targetType: "com.S2M.ArtifactTest.Demo.DTO.TransactionDTO"
+      tableName: "transactions_dto"
+      whereClause: ""   # no filter
+      sortKeys:
+        reference: "ASC"
+      pageSize: 100
