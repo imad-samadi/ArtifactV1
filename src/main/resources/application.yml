@@ -52,8 +52,13 @@ batch:
   input:
     database:
       targetType: "com.S2M.ArtifactTest.Demo.DTO.TransactionDTO"
-      tableName: "transactions_dto"
-      whereClause: ""   # no filter
+      tableName: "transactions_dto2"
+      whereClause: "MOD(CAST(SUBSTRING(reference_update, 4) AS INTEGER), 2) = :evenRemainder"
+      parameterValues:
+          evenRemainder: 0
       sortKeys:
-        reference: "ASC"
-      pageSize: 100
+        reference_update: "ASC"
+      columnMappings:
+        reference: "reference_update"
+      pageSize: 2
+      select-clause:

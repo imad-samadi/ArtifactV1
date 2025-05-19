@@ -2,6 +2,7 @@ package com.S2M.ArtifactTest.Config.ReadDb;
 
 import com.S2M.ArtifactTest.Config.ReadFile.Core.Exceptions.ConfigurationException;
 import com.S2M.ArtifactTest.Config.ReadFile.ReadProperties;
+import com.S2M.ArtifactTest.Demo.DTO.TransactionDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.configuration.annotation.StepScope;
@@ -58,13 +59,13 @@ public class DatabaseReaderConfig {
 
     public <T> JdbcPagingItemReader<T> databaseItemReader(
             @Qualifier("databasePagingQueryProvider") PagingQueryProvider queryProvider,
-            @Qualifier("databaseRowMapper") RowMapper<T> rowMapper,
+            RowMapper<T> rowMapper,
             @Qualifier("targetTypeClass") Class<T> targetTypeClass) {
 
         log.info("Configuring genericDatabaseItemReader for target: {}, page size: {}",
                 props.getTargetType(), props.getPageSize());
         if (!props.getParameterValues().isEmpty()) {
-            log.debug("Reader parameters: {}", props.getParameterValues());
+            log.info("Reader parameters: {}", props.getParameterValues());
         }
 
         return new JdbcPagingItemReaderBuilder<T>()
@@ -89,25 +90,30 @@ public class DatabaseReaderConfig {
         String from   = props.getActualTableName();
         Map<String, Order> sorts = props.getActualSortOrders();
 
-        log.debug("QueryProvider - SELECT: [{}], FROM: [{}], SORT: [{}]", select, from, sorts);
+        log.info("QueryProvider - SELECT: [{}], FROM: [{}], SORT: [{}]", select, from, sorts);
         factory.setSelectClause(select);
         factory.setFromClause("FROM " + from);
         factory.setSortKeys(sorts);
 
         if (StringUtils.hasText(props.getWhereClause())) {
-            log.debug("QueryProvider - WHERE: [{}]", props.getWhereClause());
+            log.info("QueryProvider - WHERE: [{}]", props.getWhereClause());
             factory.setWhereClause(props.getWhereClause());
         }
         return factory.getObject();
     }
 
+
     /**
      * Creates a RowMapper<T> for the target type via BeanPropertyRowMapper.
      */
-    @Bean(name = "databaseRowMapper")
-    public <T> RowMapper<T> databaseRowMapper(
+    @Bean(name = "defaultDatabaseRowMapper") // Different name for clarity
+    @ConditionalOnMissingBean(name = "userProvidedDatabaseRowMapper") // Condition on a specific user bean name
+    public <T> RowMapper<T> defaultDatabaseRowMapper(
             @Qualifier("targetTypeClass") Class<T> targetTypeClass) {
-        log.debug("Creating BeanPropertyRowMapper for: {}", targetTypeClass.getName());
+        log.info("Creating DEFAULT BeanPropertyRowMapper .........** for: {}", targetTypeClass.getName());
         return new BeanPropertyRowMapper<>(targetTypeClass);
     }
+
+
+
 }
