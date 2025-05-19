@@ -48,17 +48,35 @@ spring:
  #   type: json
     #column-ranges: "1-6,7-12,13-15,16-19"
 
+
+
+#batch:
+#  input:
+#    database:
+#      targetType: "com.S2M.ArtifactTest.Demo.DTO.TransactionDTO"
+#      tableName: "transactions_dto2"
+#      whereClause: "MOD(CAST(SUBSTRING(reference_update, 4) AS INTEGER), 2) = :evenRemainder"
+#      parameterValues:
+#          evenRemainder: 0
+#      sortKeys:
+#        reference_update: "ASC"
+#      columnMappings:
+#        reference: "reference_update"
+#      pageSize: 2
+#      select-clause:
+#      reader-type: jdbc
+
+
 batch:
   input:
     database:
-      targetType: "com.S2M.ArtifactTest.Demo.DTO.TransactionDTO"
-      tableName: "transactions_dto2"
-      whereClause: "MOD(CAST(SUBSTRING(reference_update, 4) AS INTEGER), 2) = :evenRemainder"
-      parameterValues:
-          evenRemainder: 0
-      sortKeys:
-        reference_update: "ASC"
-      columnMappings:
-        reference: "reference_update"
-      pageSize: 2
-      select-clause:
+      reader-type: REPOSITORY
+      target-type: "com.S2M.ArtifactTest.Demo.DTO.TransactionDTO"
+      service-bean-name: "transactionDTORepository"
+      service-method-name: "findByAmountGreaterThan"
+      page-size: 2
+      repository-method-arguments:
+        - 290.00  # Argument for 'amount' (BigDecimal) # Important: empty for standard findAll(Pageable)
+      repository-sorts:
+        - "amount,DESC"
+        - "reference,ASC"

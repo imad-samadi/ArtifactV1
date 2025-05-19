@@ -1,11 +1,15 @@
 package com.S2M.ArtifactTest.Config.ReadDb;
 
+import com.S2M.ArtifactTest.Config.ReadDb.Providers.DefaultDatabaseReaderProvider;
+import com.S2M.ArtifactTest.Config.ReadDb.Providers.RepositoryItemReaderProvider;
+import com.S2M.ArtifactTest.Config.ReadDb.SPI.DatabaseReaderProvider;
 import com.S2M.ArtifactTest.Config.ReadFile.Core.Exceptions.ConfigurationException;
 import com.S2M.ArtifactTest.Config.ReadFile.ReadProperties;
 import com.S2M.ArtifactTest.Demo.DTO.TransactionDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.configuration.annotation.StepScope;
+import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.database.JdbcPagingItemReader;
 import org.springframework.batch.item.database.Order;
 import org.springframework.batch.item.database.PagingQueryProvider;
@@ -15,8 +19,10 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.util.StringUtils;
@@ -32,8 +38,12 @@ import java.util.Map;
 @RequiredArgsConstructor
 @Slf4j
 @EnableConfigurationProperties(DatabaseReaderProperties.class)
-@ConditionalOnProperty(prefix = "batch.input.database", name = "targetType")
+//@ConditionalOnProperty(prefix = "batch.input.database", name = "targetType")
 public class DatabaseReaderConfig {
+
+    private final DataSource dataSource;
+    private final DatabaseReaderProperties props;
+    private final ApplicationContext ctx;
 
 
     @ConditionalOnMissingBean(name = "targetTypeClass")
@@ -49,69 +59,85 @@ public class DatabaseReaderConfig {
         }
     }
 
-    private final DataSource dataSource;
-    private final DatabaseReaderProperties props;
 
-    /**
-     * Builds a type-safe JdbcPagingItemReader<T> based on resolved targetTypeClass.
-     */
-    @Bean(name = "genericDatabaseItemReader")
-
-    public <T> JdbcPagingItemReader<T> databaseItemReader(
-            @Qualifier("databasePagingQueryProvider") PagingQueryProvider queryProvider,
-            RowMapper<T> rowMapper,
-            @Qualifier("targetTypeClass") Class<T> targetTypeClass) {
-
-        log.info("Configuring genericDatabaseItemReader for target: {}, page size: {}",
-                props.getTargetType(), props.getPageSize());
-        if (!props.getParameterValues().isEmpty()) {
-            log.info("Reader parameters: {}", props.getParameterValues());
-        }
-
-        return new JdbcPagingItemReaderBuilder<T>()
-                .name("genericDatabaseItemReader")
-                .dataSource(dataSource)
-                .queryProvider(queryProvider)
-                .parameterValues(props.getParameterValues())
-                .pageSize(props.getPageSize())
-                .rowMapper(rowMapper)
-                .build();
-    }
-
-    /**
-     * Creates the SQL PagingQueryProvider based on properties.
-     */
     @Bean(name = "databasePagingQueryProvider")
-    public PagingQueryProvider queryProvider() throws Exception {
+    @ConditionalOnMissingBean(name = "databasePagingQueryProvider")
+    @Lazy
+    public PagingQueryProvider databasePagingQueryProvider() throws Exception {
         SqlPagingQueryProviderFactoryBean factory = new SqlPagingQueryProviderFactoryBean();
-        factory.setDataSource(dataSource);
+        factory.setDataSource(this.dataSource); // Use dataSource from this config
 
-        String select = props.getActualSelectClause();
-        String from   = props.getActualTableName();
-        Map<String, Order> sorts = props.getActualSortOrders();
+        String select = this.props.getActualSelectClause();
+        String from = this.props.getActualTableName();
+        Map<String, Order> sorts = this.props.getActualSortOrders();
 
-        log.info("QueryProvider - SELECT: [{}], FROM: [{}], SORT: [{}]", select, from, sorts);
+        log.info("Database PagingQueryProvider - SELECT: [{}], FROM: [{}], SORT: [{}]", select, from, sorts);
         factory.setSelectClause(select);
         factory.setFromClause("FROM " + from);
         factory.setSortKeys(sorts);
 
-        if (StringUtils.hasText(props.getWhereClause())) {
-            log.info("QueryProvider - WHERE: [{}]", props.getWhereClause());
-            factory.setWhereClause(props.getWhereClause());
+        if (StringUtils.hasText(this.props.getWhereClause())) {
+            log.info("Database PagingQueryProvider - WHERE: [{}]", this.props.getWhereClause());
+            factory.setWhereClause(this.props.getWhereClause());
         }
         return factory.getObject();
     }
 
-
     /**
      * Creates a RowMapper<T> for the target type via BeanPropertyRowMapper.
      */
-    @Bean(name = "defaultDatabaseRowMapper") // Different name for clarity
-    @ConditionalOnMissingBean(name = "userProvidedDatabaseRowMapper") // Condition on a specific user bean name
+    @Bean(name = "defaultDatabaseRowMapper")
+    @ConditionalOnMissingBean(RowMapper.class)
+    @Lazy// If any RowMapper<T> for the specific T is missing
     public <T> RowMapper<T> defaultDatabaseRowMapper(
             @Qualifier("targetTypeClass") Class<T> targetTypeClass) {
-        log.info("Creating DEFAULT BeanPropertyRowMapper .........** for: {}", targetTypeClass.getName());
+        log.info("Creating DEFAULT BeanPropertyRowMapper for database reader, target type: {}", targetTypeClass.getName());
         return new BeanPropertyRowMapper<>(targetTypeClass);
+    }
+
+    @Bean
+    @ConditionalOnProperty(prefix = "batch.input.database", name = "reader-type", havingValue = "JDBC")
+    public <T> DatabaseReaderProvider<T> genericDatabaseReaderProvider(
+
+            @Qualifier("databasePagingQueryProvider") PagingQueryProvider queryProvider,
+            RowMapper<T> rowMapper, // Spring injects the RowMapper for T (e.g., defaultDatabaseRowMapper)
+            @Qualifier("targetTypeClass") Class<T> targetTypeClass
+    ) {
+        log.info("Creating DefaultDatabaseReaderProvider instance for type: {}", targetTypeClass.getName());
+        return new DefaultDatabaseReaderProvider<>(
+                this.dataSource,
+                this.props,
+                queryProvider,
+                rowMapper,
+                targetTypeClass
+        );
+    }
+
+    @Bean
+    @ConditionalOnProperty(prefix = "batch.input.database", name = "reader-type", havingValue = "REPOSITORY")
+    public <T> DatabaseReaderProvider<T> repositoryDatabaseReaderProvider(
+            @Qualifier("targetTypeClass") Class<T> entityTypeClass // For repository, targetType is the Entity class
+    ) {
+        log.info("Creating RepositoryItemReaderProvider for repository (serviceBeanName): {}, method (serviceMethodName): {}, entity: {}",
+                props.getServiceBeanName(), props.getServiceMethodName(), entityTypeClass.getName());
+        return new RepositoryItemReaderProvider<>(
+                this.ctx,
+                this.props,
+                entityTypeClass
+        );
+    }
+
+    /**
+     * Builds a type-safe ItemReader<T> using the fully configured DatabaseReaderProvider.
+     */
+    @Bean(name = "genericDatabaseItemReader")
+    @ConditionalOnMissingBean(name = "genericDatabaseItemReader")
+    public <T> ItemReader<T> genericDatabaseItemReader(
+            DatabaseReaderProvider<T> provider
+    ) {
+        log.info("Configuring genericDatabaseItemReader using pre-configured Provider for target type: {}",
+                props.getTargetType()); // props.getTargetType() for logging context
+        return provider.createReader();
     }
 
 
