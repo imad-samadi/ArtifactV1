@@ -1,6 +1,8 @@
 package com.S2M.ArtifactTest.Config.ReadFile.Core;
 
 import com.S2M.ArtifactTest.Config.ReadFile.Core.Exceptions.ConfigurationException;
+import com.S2M.ArtifactTest.Config.ReadFile.Providers.DefaultFlatFileReaderProvider;
+import com.S2M.ArtifactTest.Config.ReadFile.Providers.JsonFileReaderProvider;
 import com.S2M.ArtifactTest.Config.ReadFile.ReadProperties;
 
 import com.S2M.ArtifactTest.Config.ReadFile.SPI.FileReaderProvider;
@@ -21,6 +23,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.core.io.ResourceLoader;
 
 
 import java.util.List;
@@ -38,8 +41,7 @@ import java.util.List;
 public class GenericFileReaderConfig {
 
     private final ReadProperties ReadProperties;
-    //private final List<FileReaderProvider> fileReaderProviders;
-    private final FileReaderProvider FileReaderProvider;
+    private final ResourceLoader resourceLoader;
 
 
     @ConditionalOnMissingBean(name = "targetTypeClass")
@@ -89,35 +91,41 @@ public class GenericFileReaderConfig {
         return lineMapper;
     }
 
+    @Bean
+    @ConditionalOnExpression("'${batch.input.type}' == 'DELIMITED' or '${batch.input.type}' == 'FIXED_LENGTH'")
 
-  /*  @Bean(name = "genericItemReader")
-    @ConditionalOnMissingBean(ItemReader.class)
-    public <T> ItemReader<T> genericItemReader(
-            Class<T> targetTypeClass
+    public FileReaderProvider defaultFlatFileReaderProvider(
+
+             LineMapper<Object> lineMapper
+
     ) {
+        log.info("Creating DefaultFlatFileReaderProvider for file type: {}", this.ReadProperties.getType());
 
-        if (fileReaderProviders.isEmpty()) {
-            throw new ConfigurationException("No FileReaderProvider beans are configured.");
-        }
+        return new DefaultFlatFileReaderProvider(this.resourceLoader, lineMapper);
+    }
 
-        final ReadProperties propsForProvider = this.ReadProperties;
+    @Bean
+    @ConditionalOnProperty(prefix = "batch.input", name = "type", havingValue = "JSON")
 
-        return fileReaderProviders.stream()
-                .filter(provider -> provider.supports(propsForProvider))
-                .findFirst()
-                .orElseThrow(() -> new ConfigurationException(
-                        "No FileReaderProvider found for: " + propsForProvider.toString()
-                ))
-                .createReader(propsForProvider, targetTypeClass);
-    }*/
+    public FileReaderProvider jsonFileReaderProvider(
+
+    ) {
+        log.info("Creating JsonFileReaderProvider for file type: JSON");
+        return new JsonFileReaderProvider(this.resourceLoader);
+    }
+
+
+
+
 
     @Bean(name = "genericItemReader")
     @ConditionalOnMissingBean(ItemReader.class)
     public <T> ItemReader<T> genericItemReader(
+            FileReaderProvider fileReaderProvider,
             Class<T> targetTypeClass
     ) {
 
-        return this.FileReaderProvider.createReader(this.ReadProperties, targetTypeClass);
+        return fileReaderProvider.createReader(this.ReadProperties, targetTypeClass);
     }
 
 

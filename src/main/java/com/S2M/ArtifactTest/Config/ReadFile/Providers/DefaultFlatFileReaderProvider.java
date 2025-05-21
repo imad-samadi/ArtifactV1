@@ -23,11 +23,9 @@ import org.springframework.stereotype.Component;
  * Default provider for creating FlatFileItemReader instances.
  */
 
-@Component
+
 @Slf4j
-@ConditionalOnExpression(
-        "'${batch.input.type}' == 'DELIMITED' or '${batch.input.type}' == 'FIXED_LENGTH'"
-)
+
 public class DefaultFlatFileReaderProvider  implements FileReaderProvider {
 
     private final ResourceLoader resourceLoader;

@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 @Repository("transactionDTORepository")
-public interface TransactionDTORepository extends PagingAndSortingRepository<TransactionDTO, String> {
+public interface TransactionDTORepository extends JpaRepository<TransactionDTO, String> {
 
     Page<TransactionDTO> findByAmountGreaterThan(Double amount, Pageable pageable);
 }

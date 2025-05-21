@@ -38,7 +38,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 @Slf4j
 @EnableConfigurationProperties(DatabaseReaderProperties.class)
-//@ConditionalOnProperty(prefix = "batch.input.database", name = "targetType")
+@ConditionalOnProperty(prefix = "batch.input.database", name = "targetType")
 public class DatabaseReaderConfig {
 
     private final DataSource dataSource;
@@ -65,7 +65,7 @@ public class DatabaseReaderConfig {
     @Lazy
     public PagingQueryProvider databasePagingQueryProvider() throws Exception {
         SqlPagingQueryProviderFactoryBean factory = new SqlPagingQueryProviderFactoryBean();
-        factory.setDataSource(this.dataSource); // Use dataSource from this config
+        factory.setDataSource(this.dataSource);
 
         String select = this.props.getActualSelectClause();
         String from = this.props.getActualTableName();
@@ -86,9 +86,10 @@ public class DatabaseReaderConfig {
     /**
      * Creates a RowMapper<T> for the target type via BeanPropertyRowMapper.
      */
-    @Bean(name = "defaultDatabaseRowMapper")
+
+    @Bean
     @ConditionalOnMissingBean(RowMapper.class)
-    @Lazy// If any RowMapper<T> for the specific T is missing
+    @Lazy
     public <T> RowMapper<T> defaultDatabaseRowMapper(
             @Qualifier("targetTypeClass") Class<T> targetTypeClass) {
         log.info("Creating DEFAULT BeanPropertyRowMapper for database reader, target type: {}", targetTypeClass.getName());
@@ -100,7 +101,7 @@ public class DatabaseReaderConfig {
     public <T> DatabaseReaderProvider<T> genericDatabaseReaderProvider(
 
             @Qualifier("databasePagingQueryProvider") PagingQueryProvider queryProvider,
-            RowMapper<T> rowMapper, // Spring injects the RowMapper for T (e.g., defaultDatabaseRowMapper)
+            RowMapper<T> rowMapper,
             @Qualifier("targetTypeClass") Class<T> targetTypeClass
     ) {
         log.info("Creating DefaultDatabaseReaderProvider instance for type: {}", targetTypeClass.getName());
@@ -131,7 +132,7 @@ public class DatabaseReaderConfig {
      * Builds a type-safe ItemReader<T> using the fully configured DatabaseReaderProvider.
      */
     @Bean(name = "genericDatabaseItemReader")
-    @ConditionalOnMissingBean(name = "genericDatabaseItemReader")
+
     public <T> ItemReader<T> genericDatabaseItemReader(
             DatabaseReaderProvider<T> provider
     ) {

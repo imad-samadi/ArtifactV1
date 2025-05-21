@@ -15,11 +15,11 @@ import java.math.BigDecimal;
 @ToString
 @Builder
 @Entity
-@Table(name = "transactions_dto2")
+@Table(name = "transactions_dto")
 public class TransactionDTO {
 
     @Id
-    @Column(name = "reference_update")
+    //@Column(name = "reference_update")
     private String reference;
     private BigDecimal amount;
     @Column(name = "account_number")
@@ -33,9 +33,11 @@ public class TransactionDTO {
     );*/
 
     public static final RowMapper<TransactionDTO> ROW_MAPPER = (rs, rowNum) -> TransactionDTO.builder()
-            .reference(  rs.getString("reference_update"))
-            .amount(rs.getBigDecimal("amount"))
-            .accountNumber(rs.getString("account_number"))
+           // .reference(  rs.getString("reference_update"))
+            .reference(  rs.getString("reference"))
+            //.amount(rs.getBigDecimal("amount"))
+            //.accountNumber(rs.getString("account_number"))
+
             .build()
             ;
 }

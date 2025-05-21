@@ -43,6 +43,8 @@ public class BatchConfig2 {
     // Transaction manager for chunk boundaries
     private final PlatformTransactionManager transactionManager;
 
+
+    //File to DB beans
     @Bean("TransactionDtoJdbcWriter")
     public ItemWriter<TransactionDTO> transactionDtoJdbcWriter() {
         return new TransactionDtoJdbcWriter(dataSource);
@@ -51,6 +53,8 @@ public class BatchConfig2 {
     public ItemProcessor<Transaction, TransactionDTO> transactionToDtoProcessor() {
         return new TransactionToDtoProcessor();
     }
+
+    //DB To file Beans
 
     @Bean("FlatFileItemWriter")
     public FlatFileItemWriter<TransactionDTO> transactionFileWriter() {
@@ -89,10 +93,10 @@ public class BatchConfig2 {
 
    /* @Bean("simpleTransactionStep")
     public Step simpleTransactionStep(
-            @Qualifier("genericDatabaseItemReader") ItemReader<Transaction> reader,
+            @Qualifier("genericItemReader") ItemReader<Transaction> reader,
 
             ItemProcessor<Transaction, TransactionDTO> transactionProcessor,
-            ItemWriter<TransactionDTO> compositeWriter
+         @Qualifier("TransactionDtoJdbcWriter")   ItemWriter<TransactionDTO> compositeWriter
     ) {
         return new StepBuilder("simpleTransactionStep", jobRepository)
 
@@ -107,18 +111,18 @@ public class BatchConfig2 {
     public Job simpleTransactionJob(
             @Qualifier("transactionStep2") Step simpleTransactionStep
     ) {
-        return new JobBuilder("QQSCCVFRR", jobRepository)
+        return new JobBuilder("DQSSXCWWSX", jobRepository)
                 .flow(simpleTransactionStep)
                 .end()
                 .build();
     }
 
-    @Bean
+  /*  @Bean
     @Primary
     public RowMapper<TransactionDTO> transactionDtoRowMapper() {
         log.info("TransactionDtoRowMapper............................;;;;");
         return TransactionDTO.ROW_MAPPER;
-    }
+    }*/
 
 
 }

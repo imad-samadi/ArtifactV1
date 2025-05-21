@@ -43,7 +43,6 @@ public class RepositoryItemReaderProvider<T> implements DatabaseReaderProvider<T
                 .methodName(props.getServiceMethodName())
                 .pageSize(props.getPageSize());
 
-        // Arguments: Prioritize dedicated repositoryMethodArguments
         List<Object> arguments;
         if (props.getRepositoryMethodArguments() != null && !props.getRepositoryMethodArguments().isEmpty()) {
             arguments = new ArrayList<>(props.getRepositoryMethodArguments());
@@ -58,14 +57,9 @@ public class RepositoryItemReaderProvider<T> implements DatabaseReaderProvider<T
         builder.arguments(arguments);
 
 
-        // Sort: Use the new getRepositorySpringSort() helper from properties
         Sort springDataSort = props.getRepositorySpringSort();
         if (springDataSort.isSorted()) {
-            // RepositoryItemReaderBuilder's sorts() method expects Map<String, Sort.Direction>
-            // So we need to convert Sort object back to this map if using that specific builder method.
-            // Alternatively, many repository methods accept Sort directly as a Pageable component.
-            // For now, let's build the map for the builder's .sorts() method.
-            // This is a bit redundant if the repository method just takes Pageable.
+
             Map<String, Sort.Direction> sortsMap = new LinkedHashMap<>();
             springDataSort.forEach(order -> sortsMap.put(order.getProperty(), order.getDirection()));
             if(!sortsMap.isEmpty()){

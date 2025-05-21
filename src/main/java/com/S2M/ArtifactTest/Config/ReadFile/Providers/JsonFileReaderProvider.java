@@ -14,8 +14,8 @@ import org.springframework.core.io.ResourceLoader;
 
 
 @RequiredArgsConstructor
-@Component
-@ConditionalOnProperty(prefix = "batch.input", name = "type", havingValue = "JSON")
+
+
 public class JsonFileReaderProvider implements FileReaderProvider {
 
     private final ResourceLoader resourceLoader;
