@@ -16,6 +16,7 @@ import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
 import org.springframework.batch.item.file.mapping.DefaultLineMapper;
 import org.springframework.batch.item.file.mapping.FieldSetMapper;
 import org.springframework.batch.item.file.transform.LineTokenizer;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -44,8 +45,8 @@ public class GenericFileReaderConfig {
     private final ResourceLoader resourceLoader;
 
 
-    @ConditionalOnMissingBean(name = "targetTypeClass")
-    @Bean(name = "targetTypeClass")
+    @ConditionalOnMissingBean(name = "targetInputTypeClass")
+    @Bean(name = "targetInputTypeClass")
 
     public Class<?> targetTypeClass() {
         try {
@@ -70,7 +71,7 @@ public class GenericFileReaderConfig {
     @Bean
     @ConditionalOnMissingBean(FieldSetMapper.class)
     @Lazy
-    public <T> FieldSetMapper<T> genericFieldSetMapper(Class<T> targetTypeClass) {
+    public <T> FieldSetMapper<T> genericFieldSetMapper(@Qualifier("targetInputTypeClass") Class<T> targetTypeClass) {
         log.info("FieldSetMapper...........................;");
         BeanWrapperFieldSetMapper<T> fieldSetMapper = new BeanWrapperFieldSetMapper<>();
         fieldSetMapper.setTargetType(targetTypeClass);
@@ -118,11 +119,12 @@ public class GenericFileReaderConfig {
 
 
 
-    @Bean(name = "genericItemReader")
+    @Bean
     @ConditionalOnMissingBean(ItemReader.class)
+    @Qualifier("genericItemReader")
     public <T> ItemReader<T> genericItemReader(
             FileReaderProvider fileReaderProvider,
-            Class<T> targetTypeClass
+           @Qualifier("targetInputTypeClass") Class<T> targetTypeClass
     ) {
 
         return fileReaderProvider.createReader(this.ReadProperties, targetTypeClass);

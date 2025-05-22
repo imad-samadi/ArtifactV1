@@ -78,7 +78,7 @@ public class BatchConfig2 {
         };
     }
 
-    @Bean("transactionStep2")
+   /* @Bean("transactionStep2")
     public Step transactionStep( @Qualifier("genericDatabaseItemReader") ItemReader<TransactionDTO> reader) {
 
         return new StepBuilder("simpleTransactionStep", jobRepository)
@@ -88,10 +88,10 @@ public class BatchConfig2 {
                 .processor(transactionProcessor2())
                 .writer(transactionFileWriter())
                 .build();
-    }
+    }*/
 
 
-   /* @Bean("simpleTransactionStep")
+    @Bean("simpleTransactionStep")
     public Step simpleTransactionStep(
             @Qualifier("genericItemReader") ItemReader<Transaction> reader,
 
@@ -105,13 +105,13 @@ public class BatchConfig2 {
                 .processor(transactionProcessor)
                 .writer(compositeWriter)
                 .build();
-    }*/
+    }
 
     @Bean
     public Job simpleTransactionJob(
-            @Qualifier("transactionStep2") Step simpleTransactionStep
+            @Qualifier("simpleTransactionStep") Step simpleTransactionStep
     ) {
-        return new JobBuilder("DQSSXCWWSX", jobRepository)
+        return new JobBuilder("DQSSCCCD    ", jobRepository)
                 .flow(simpleTransactionStep)
                 .end()
                 .build();

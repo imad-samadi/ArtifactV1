@@ -4,16 +4,13 @@ import com.S2M.ArtifactTest.Config.ReadDb.Providers.DefaultDatabaseReaderProvide
 import com.S2M.ArtifactTest.Config.ReadDb.Providers.RepositoryItemReaderProvider;
 import com.S2M.ArtifactTest.Config.ReadDb.SPI.DatabaseReaderProvider;
 import com.S2M.ArtifactTest.Config.ReadFile.Core.Exceptions.ConfigurationException;
-import com.S2M.ArtifactTest.Config.ReadFile.ReadProperties;
-import com.S2M.ArtifactTest.Demo.DTO.TransactionDTO;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.batch.core.configuration.annotation.StepScope;
+
 import org.springframework.batch.item.ItemReader;
-import org.springframework.batch.item.database.JdbcPagingItemReader;
 import org.springframework.batch.item.database.Order;
 import org.springframework.batch.item.database.PagingQueryProvider;
-import org.springframework.batch.item.database.builder.JdbcPagingItemReaderBuilder;
 import org.springframework.batch.item.database.support.SqlPagingQueryProviderFactoryBean;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -46,8 +43,8 @@ public class DatabaseReaderConfig {
     private final ApplicationContext ctx;
 
 
-    @ConditionalOnMissingBean(name = "targetTypeClass")
-    @Bean(name = "targetTypeClass")
+    @ConditionalOnMissingBean(name = "targetInputTypeClass")
+    @Bean(name = "targetInputTypeClass")
 
     public Class<?> targetTypeClass() {
         try {
@@ -91,7 +88,7 @@ public class DatabaseReaderConfig {
     @ConditionalOnMissingBean(RowMapper.class)
     @Lazy
     public <T> RowMapper<T> defaultDatabaseRowMapper(
-            @Qualifier("targetTypeClass") Class<T> targetTypeClass) {
+            @Qualifier("targetInputTypeClass") Class<T> targetTypeClass) {
         log.info("Creating DEFAULT BeanPropertyRowMapper for database reader, target type: {}", targetTypeClass.getName());
         return new BeanPropertyRowMapper<>(targetTypeClass);
     }
@@ -102,7 +99,7 @@ public class DatabaseReaderConfig {
 
             @Qualifier("databasePagingQueryProvider") PagingQueryProvider queryProvider,
             RowMapper<T> rowMapper,
-            @Qualifier("targetTypeClass") Class<T> targetTypeClass
+            @Qualifier("targetInputTypeClass") Class<T> targetTypeClass
     ) {
         log.info("Creating DefaultDatabaseReaderProvider instance for type: {}", targetTypeClass.getName());
         return new DefaultDatabaseReaderProvider<>(
@@ -117,7 +114,7 @@ public class DatabaseReaderConfig {
     @Bean
     @ConditionalOnProperty(prefix = "batch.input.database", name = "reader-type", havingValue = "REPOSITORY")
     public <T> DatabaseReaderProvider<T> repositoryDatabaseReaderProvider(
-            @Qualifier("targetTypeClass") Class<T> entityTypeClass // For repository, targetType is the Entity class
+            @Qualifier("targetInputTypeClass") Class<T> entityTypeClass
     ) {
         log.info("Creating RepositoryItemReaderProvider for repository (serviceBeanName): {}, method (serviceMethodName): {}, entity: {}",
                 props.getServiceBeanName(), props.getServiceMethodName(), entityTypeClass.getName());
@@ -131,7 +128,8 @@ public class DatabaseReaderConfig {
     /**
      * Builds a type-safe ItemReader<T> using the fully configured DatabaseReaderProvider.
      */
-    @Bean(name = "genericDatabaseItemReader")
+    @Bean
+    @Qualifier("genericItemReader")
 
     public <T> ItemReader<T> genericDatabaseItemReader(
             DatabaseReaderProvider<T> provider

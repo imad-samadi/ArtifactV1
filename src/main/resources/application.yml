@@ -27,38 +27,40 @@ spring:
     job:
       enabled: true
 
+
+
+
 #batch:
 #  input:
-#
-#    filePath: "file:C:/Users/msi/Downloads/ArtifactTest (1)/ArtifactTest/src/main/resources/transactions.json"
+#    filePath: "file:C:/Users/msi/Downloads/ArtifactTest (1)/ArtifactTest/src/main/resources/transactions.csv"
+#    target-type: "com.S2M.ArtifactTest.Demo.DTO.Transaction"
+#    lines-to-skip: 1
 #    names:
 #      - "reference"
 #      - "amount"
 #      - "currency"
 #      - "accountNumber"
-#    linesToSkip: 0
-#    encoding: "UTF-8"
-#  #  type: json
-#   # delimiter: ","
-#   #  quoteCharacter: "\"" # Optional
-#
-#   # column-ranges: "1-6,7-12,13-15,16-19"
-#    target-type: "com.S2M.ArtifactTest.Demo.DTO.Transaction"
-#    type: json
+#    type: DELIMITED
 
 
 #batch:
 #  input:
-#    filePath: "file:C:/Users/msi/Downloads/ArtifactTest (1)/ArtifactTest/src/main/resources/transactionsFixedLength.txt"
+#    filePath: "file:C:/Users/msi/Downloads/ArtifactTest (1)/ArtifactTest/src/main/resources/transactions.JSON"
 #    target-type: "com.S2M.ArtifactTest.Demo.DTO.Transaction"
-#    lines-to-skip: 0
-#    names:
-#      - "reference"
-#      - "amount"
-#      - "currency"
-#      - "accountNumber"
-#    type: FIXED_LENGTH
-#    column-ranges: "1-6,7-12,13-15,16-19"
+#    type: JSON
+
+
+batch:
+  input:
+    filePath: "file:C:/Users/msi/Downloads/ArtifactTest (1)/ArtifactTest/src/main/resources/transactionsFixedLength.txt"
+    target-type: "com.S2M.ArtifactTest.Demo.DTO.Transaction"
+    names:
+      - "reference"
+      - "amount"
+      - "currency"
+      - "accountNumber"
+    type: FIXED_LENGTH
+    column-ranges: "1-6,7-12,13-15,16-19"
 
 
 
@@ -99,19 +101,19 @@ spring:
 
 
 
-batch:
-  input:
-    database:
-      targetType: "com.S2M.ArtifactTest.Demo.DTO.TransactionDTO"
-      service-bean-name: "transactionDTORepository"
-      service-method-name: "findByAmountGreaterThan"
-      page-size: 2
-      repository-method-arguments:
-        - 290.00  # Argument for 'amount'
-      repository-sorts:
-        - "amount,DESC"
-        - "reference,ASC"
-      reader-type: REPOSITORY
+#batch:
+#  input:
+#    database:
+#      targetType: "com.S2M.ArtifactTest.Demo.DTO.TransactionDTO"
+#      service-bean-name: "transactionDTORepository"
+#      service-method-name: "findByAmountGreaterThan"
+#      page-size: 2
+#      repository-method-arguments:
+#        - 290.00  # Argument for 'amount'
+#      repository-sorts:
+#        - "amount,DESC"
+#        - "reference,ASC"
+#      reader-type: REPOSITORY
 
 
 

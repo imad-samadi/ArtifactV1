@@ -1,4 +1,4 @@
-/*package com.S2M.ArtifactTest.Config;
+package com.S2M.ArtifactTest.Config;
 
 import com.S2M.ArtifactTest.Config.Listeners.LoggingJobListener;
 import com.S2M.ArtifactTest.Config.Listeners.LoggingSkipListener;
@@ -10,12 +10,15 @@ import org.springframework.batch.core.JobExecutionListener;
 import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.core.configuration.support.DefaultBatchConfiguration;
 import org.springframework.batch.core.step.skip.SkipException;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.retry.backoff.BackOffPolicy;
 import org.springframework.retry.backoff.BackOffPolicyBuilder;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import org.springframework.batch.core.step.skip.LimitCheckingItemSkipPolicy;
@@ -45,6 +48,25 @@ public class BatchConfiguration extends DefaultBatchConfiguration {
 
     private final BatchProperties batchProperties;
 
+
+    @Bean
+    @ConditionalOnMissingBean
+    @Qualifier("multiThreadStepExecutor")
+    public TaskExecutor multiThreadStepExecutor() {
+        ThreadPoolTaskExecutor exec = new ThreadPoolTaskExecutor();
+        // Use as many threads as specified (e.g., cores count)
+        exec.setCorePoolSize(batchProperties.getCorePoolSize());
+        exec.setMaxPoolSize(batchProperties.getMaxPoolSize());
+        // Daemon threads ensure the JVM can exit when job completes
+        exec.setThreadFactory(r -> {
+            Thread t = new Thread(r);
+            t.setDaemon(true);
+            return t;
+        });
+        exec.initialize();
+        return exec;
+    }
+
     @Override
     protected PlatformTransactionManager getTransactionManager() {
         return new DataSourceTransactionManager(this.dataSource);
@@ -52,7 +74,7 @@ public class BatchConfiguration extends DefaultBatchConfiguration {
 
 
 
-    ///How Long Should We Wait Before Retrying ?
+    ///How Long Should We Wait Before Retrying an Exception ?
     @ConditionalOnMissingBean
     @Bean
     BackOffPolicy backOffPolicy() {
@@ -143,4 +165,4 @@ public class BatchConfiguration extends DefaultBatchConfiguration {
 
 
 
-}*/
+}
