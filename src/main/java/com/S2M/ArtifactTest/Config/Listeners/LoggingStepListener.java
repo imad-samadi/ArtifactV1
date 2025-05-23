@@ -10,21 +10,40 @@ import java.time.LocalDateTime;
 @Slf4j
 public class LoggingStepListener implements StepExecutionListener {
 
+    private final ThreadLocal<Long> startMillis = new ThreadLocal<>();
+
     @Override
     public void beforeStep(StepExecution stepExecution) {
-        stepExecution.setStartTime(LocalDateTime.now());
+        LocalDateTime now = LocalDateTime.now();
+        startMillis.set(System.currentTimeMillis());
+        stepExecution.setStartTime(now);
+        log.info("----> Step '{}' starting at {}.", stepExecution.getStepName(), now);
     }
 
     @Override
     public ExitStatus afterStep(StepExecution stepExecution) {
-        stepExecution.setEndTime(LocalDateTime.now());
+        LocalDateTime end = LocalDateTime.now();
+        stepExecution.setEndTime(end);
 
-        log.info("{} Step completed in time: {}\nSummary{}", stepExecution.getStepName(), Duration.between(stepExecution.getStartTime(), stepExecution.getEndTime()), stepExecution.getSummary());
+        long chunkMs = System.currentTimeMillis() - startMillis.get();
+        Duration wallClock = Duration.between(stepExecution.getStartTime(), end);
 
-        if (stepExecution.getProcessSkipCount() > 0) {
-            return StepStatus.COMPLETED_WITH_SKIPS;
-        } else {
-            return stepExecution.getExitStatus();
+        log.info("<---- Step '{}' finished with status {}.",
+                stepExecution.getStepName(), stepExecution.getStatus());
+        log.info("Read={}, Write={}, Commits={}, Duration={}ms (chunk) / {} (wall-clock)",
+                stepExecution.getReadCount(),
+                stepExecution.getWriteCount(),
+                stepExecution.getCommitCount(),
+                chunkMs,
+                wallClock);
+
+        startMillis.remove();
+
+        Long skips = stepExecution.getProcessSkipCount();
+        if (skips > 0) {
+            // addExitDescription returns a new ExitStatus with appended description
+            return ExitStatus.COMPLETED.addExitDescription("Skipped " + skips + " items");
         }
+        return stepExecution.getExitStatus();
     }
 }

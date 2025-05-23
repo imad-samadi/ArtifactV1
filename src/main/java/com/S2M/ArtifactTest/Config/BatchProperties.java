@@ -18,7 +18,7 @@ import java.time.Duration;
 @Setter
 @ToString
 @Validated
-@ConfigurationProperties(prefix = "batch.execution")
+@ConfigurationProperties(prefix = "job.execution")
 
 public class BatchProperties {
 
@@ -76,13 +76,10 @@ public class BatchProperties {
 
 
 
-    @Min(1)
-    private int triggerPartitioningThreshold = 20;
 
 
-    // Transient fields to hold resolved classes
-    private transient Class<?> resolvedReaderInputType;
-    private transient Class<?> resolvedWriterOutputType;
+
+
 
 
 

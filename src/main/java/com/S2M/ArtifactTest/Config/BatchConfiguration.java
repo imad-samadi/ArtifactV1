@@ -4,11 +4,16 @@ import com.S2M.ArtifactTest.Config.Listeners.LoggingJobListener;
 import com.S2M.ArtifactTest.Config.Listeners.LoggingSkipListener;
 import com.S2M.ArtifactTest.Config.Listeners.LoggingStepListener;
 
+import com.S2M.ArtifactTest.Config.Listeners.SimpleChunkListener;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.exception.ConstraintViolationException;
+import org.springframework.batch.core.ChunkListener;
+import org.springframework.batch.core.ItemWriteListener;
 import org.springframework.batch.core.JobExecutionListener;
 import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.core.configuration.support.DefaultBatchConfiguration;
+import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.skip.SkipException;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -42,11 +47,14 @@ import java.util.stream.Collectors;
 
 @Configuration
 @RequiredArgsConstructor
-public class BatchConfiguration extends DefaultBatchConfiguration {
+@Slf4j
+public class BatchConfiguration  {
 
     private final DataSource dataSource;
 
     private final BatchProperties batchProperties;
+
+
 
 
     @Bean
@@ -67,10 +75,6 @@ public class BatchConfiguration extends DefaultBatchConfiguration {
         return exec;
     }
 
-    @Override
-    protected PlatformTransactionManager getTransactionManager() {
-        return new DataSourceTransactionManager(this.dataSource);
-    }
 
 
 
@@ -162,6 +166,48 @@ public class BatchConfiguration extends DefaultBatchConfiguration {
 
         return new LoggingSkipListener();
     }
+    @Bean
+    ChunkListener getChunkListener() {
+        return new SimpleChunkListener() ;
+    }
+
+    @Bean("DefaultJob")
+    public <R, W> DefaultJob<R, W> defaultJob(
+            JobRepository jobRepository,
+            PlatformTransactionManager transactionManager,
+            @Qualifier("multiThreadStepExecutor") TaskExecutor taskExecutor,
+            BatchProperties batchProperties,
+            JobExecutionListener jobListener,
+            StepExecutionListener stepListener,
+            LoggingSkipListener skipListener,
+            ChunkListener chunkListener,
+            ItemWriteListener itemWriteListener,
+            RetryPolicy retryPolicy,
+            SkipPolicy skipPolicy,
+            BackOffPolicy backOffPolicy
+            ) {
+
+
+log.info("Configuring Default JOB ............");
+        return new DefaultJob<R, W>(
+                jobRepository,
+                transactionManager,
+                taskExecutor,
+                batchProperties,
+                jobListener,
+                stepListener,
+                skipListener,
+                chunkListener,
+                itemWriteListener,
+                retryPolicy,
+                skipPolicy,
+                backOffPolicy
+        ) ;
+    }
+
+
+
+
 
 
 

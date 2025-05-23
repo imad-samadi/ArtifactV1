@@ -10,20 +10,20 @@ import java.time.LocalDateTime;
 @Slf4j
 public class LoggingJobListener implements JobExecutionListener {
 
+    private long startTime;
+
     @Override
-    public void beforeJob(final JobExecution jobExecution) {
-        jobExecution.setStartTime(LocalDateTime.now());
-        log.info(jobExecution.getJobInstance().getJobName() + " Job is beginning execution");
+    public void beforeJob(JobExecution  jobExecution) {
+        startTime = System.currentTimeMillis();
+        log.info("{} starting.", jobExecution.getJobInstance().getJobName());
     }
 
     @Override
-    public void afterJob(final JobExecution jobExecution) {
-        jobExecution.setEndTime(LocalDateTime.now());
-        log.info(
-                jobExecution.getJobInstance().getJobName()
-                        + " Job has completed in time: "
-                        + Duration.between(jobExecution.getStartTime(), jobExecution.getEndTime())
-                        + " with the status "
-                        + jobExecution.getStatus());
+    public void afterJob(JobExecution jobExecution) {
+        long duration = System.currentTimeMillis() - startTime;
+        log.info("{} finished with status {}. Total duration: {} ms",
+                jobExecution.getJobInstance().getJobName(),
+                jobExecution.getStatus(),
+                duration);
     }
 }

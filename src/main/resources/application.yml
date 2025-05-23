@@ -30,17 +30,24 @@ spring:
 
 
 
-#batch:
-#  input:
-#    filePath: "file:C:/Users/msi/Downloads/ArtifactTest (1)/ArtifactTest/src/main/resources/transactions.csv"
-#    target-type: "com.S2M.ArtifactTest.Demo.DTO.Transaction"
-#    lines-to-skip: 1
-#    names:
-#      - "reference"
-#      - "amount"
-#      - "currency"
-#      - "accountNumber"
-#    type: DELIMITED
+batch:
+  input:
+    filePath: "file:C:/Users/msi/Downloads/ArtifactTest (1)/ArtifactTest/src/main/resources/transactions.csv"
+    target-type: "com.S2M.ArtifactTest.Demo.DTO.Transaction"
+    lines-to-skip: 1
+    names:
+      - "reference"
+      - "amount"
+      - "currency"
+      - "accountNumber"
+    type: DELIMITED
+
+job :
+  execution:
+    job-type:  MULTI_THREADED_STEP
+    job-name: "JOQQDDDF34543"
+    step-name: "STEP6555"
+
 
 
 #batch:
@@ -50,17 +57,17 @@ spring:
 #    type: JSON
 
 
-batch:
-  input:
-    filePath: "file:C:/Users/msi/Downloads/ArtifactTest (1)/ArtifactTest/src/main/resources/transactionsFixedLength.txt"
-    target-type: "com.S2M.ArtifactTest.Demo.DTO.Transaction"
-    names:
-      - "reference"
-      - "amount"
-      - "currency"
-      - "accountNumber"
-    type: FIXED_LENGTH
-    column-ranges: "1-6,7-12,13-15,16-19"
+#batch:
+#  input:
+#    filePath: "file:C:/Users/msi/Downloads/ArtifactTest (1)/ArtifactTest/src/main/resources/transactionsFixedLength.txt"
+#    target-type: "com.S2M.ArtifactTest.Demo.DTO.Transaction"
+#    names:
+#      - "reference"
+#      - "amount"
+#      - "currency"
+#      - "accountNumber"
+#    type: FIXED_LENGTH
+#    column-ranges: "1-6,7-12,13-15,16-19"
 
 
 
