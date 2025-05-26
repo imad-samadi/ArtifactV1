@@ -1,0 +1,32 @@
+[
+  {
+    "reference": "REF001",
+    "amount": 120.50,
+    "currency": "USD",
+    "accountNumber": "ACC1001"
+  },
+  {
+    "reference": "REF002",
+    "amount": 89.99,
+    "currency": "EUR",
+    "accountNumber": "ACC1002"
+  },
+  {
+    "reference": "REF003",
+    "amount": 300.00,
+    "currency": "USD",
+    "accountNumber": "ACC1003"
+  },
+  {
+    "reference": "REF004",
+    "amount": 45.75,
+    "currency": "GBP",
+    "accountNumber": "ACC1004"
+  },
+  {
+    "reference": "REF005",
+    "amount": 500.00,
+    "currency": "EUR",
+    "accountNumber": "ACC1005"
+  }
+]

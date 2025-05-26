@@ -1,0 +1,205 @@
+spring:
+
+  application:
+    name: "transactions"
+
+  datasource:
+    url: jdbc:postgresql://localhost:5433/transactionsBatch    #testPerforV2
+    username: postgres
+    password: imad
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+    database: postgresql
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+
+  batch:
+    jdbc:
+      initialize-schema: always
+    job:
+      enabled: true
+
+
+
+#TEST ALL :
+
+#batch:
+#  input:
+#    file:
+#      filePath: "file:C:/Users/msi/Desktop/artifact/Artifact_Batch/input/transactions.csv"
+#      lines-to-skip: 1
+#      names:
+#        - "reference"
+#        - "amount"
+#        - "currency"
+#        - "accountNumber"
+#      file-type: DELIMITED
+#      target-model: "art.artifact_batch.Application.Demo.DTO.Transaction"
+#  output:
+#    database:
+#      database-type: repository
+#      service-bean-name: "transactionDTORepository"
+#      target-model: "art.artifact_batch.Application.Demo.DTO.TransactionDTO"
+
+#  output:
+#    database:
+#      database-type: jdbc
+#      target-model: "art.artifact_batch.Application.Demo.DTO.TransactionDTO"
+#      table-name: "transactions_dto"
+
+#  output:
+#    file:
+#      file-path: "file:./output/transactions.csv"
+#      file-type: delimited
+#      target-model: "art.artifact_batch.Application.Demo.DTO.TransactionDTO"
+
+
+
+batch:
+  input:
+    database:
+      table-name: "transactions_dto"
+      whereClause: "MOD(CAST(SUBSTRING(reference, 4) AS INTEGER), 2) = :evenRemainder"
+      parameterValues:
+        evenRemainder: 0
+
+      sort-keys:
+        reference: ASC
+      target-model: "art.artifact_batch.Application.Demo.DTO.TransactionDTO"
+      database-type: jdbc
+  output:
+    file:
+      target-model: "art.artifact_batch.Application.Demo.DTO.TransactionDTO"
+      file-path: "file:./output/transactions.csv"
+      file-type: delimited
+
+
+
+job :
+  execution:
+    job-name: "SSSX3D"
+    step-name: "STEP6555"
+
+
+
+
+#batch:
+#  input:
+#    filePath: "file:C:/Users/msi/Downloads/ArtifactTest (1)/ArtifactTest/src/main/resources/transactions.JSON"
+#    target-type: "com.S2M.ArtifactTest.Demo.DTO.Transaction"
+#    type: JSON
+
+
+#batch:
+#  input:
+#    filePath: "file:C:/Users/msi/Downloads/ArtifactTest (1)/ArtifactTest/src/main/resources/transactionsFixedLength.txt"
+#    target-type: "com.S2M.ArtifactTest.Demo.DTO.Transaction"
+#    names:
+#      - "reference"
+#      - "amount"
+#      - "currency"
+#      - "accountNumber"
+#    type: FIXED_LENGTH
+#    column-ranges: "1-6,7-12,13-15,16-19"
+
+
+
+
+
+
+
+
+#batch:
+#  input:
+#    database:
+#      targetType: "com.S2M.ArtifactTest.Demo.DTO.TransactionDTO"
+#      tableName: "transactions_dto2"
+#      whereClause: "MOD(CAST(SUBSTRING(reference_update, 4) AS INTEGER), 2) = :evenRemainder"
+#      parameterValues:
+#          evenRemainder: 0
+#      sortKeys:
+#        reference_update: "ASC"
+#      columnMappings:
+#        reference: "reference_update"
+#      pageSize: 2
+#      select-clause:
+#      reader-type: jdbc
+
+#batch:
+#  input:
+#    database:
+#      targetType: "com.S2M.ArtifactTest.Demo.DTO.TransactionDTO"
+#      reader-type: JDBC
+#      table-name: "transactions_dto"
+#      select-clause: "reference"
+#      whereClause: "MOD(CAST(SUBSTRING(reference, 4) AS INTEGER), 2) = :evenRemainder"
+#      parameterValues:
+#        evenRemainder: 0
+#
+#      sort-keys:
+#        reference: ASC
+
+
+
+#batch:
+#  input:
+#    database:
+#      targetType: "com.S2M.ArtifactTest.Demo.DTO.TransactionDTO"
+#      service-bean-name: "transactionDTORepository"
+#      service-method-name: "findByAmountGreaterThan"
+#      page-size: 2
+#      repository-method-arguments:
+#        - 290.00  # Argument for 'amount'
+#      repository-sorts:
+#        - "amount,DESC"
+#        - "reference,ASC"
+#      reader-type: REPOSITORY
+
+
+
+
+#...........................................................
+# Configuration JSON Writer
+
+#batch:
+#  output:
+#    filePath: file:./output/transactions.json
+#    type: JSON
+#    targetClassName: art.artifact_batch.application.model.Transaction
+
+#-------------- Config for Output Database --------
+
+# Configuration JDBC Writer
+
+#batch:
+#  input:
+#    file:
+#      delimiter: ","
+#      file-path: file:./input/Transactions.csv
+#      file-type: delimited
+#      target-model: art.artifact_batch.application.model.Transaction
+#
+#  output:
+#    database:
+#      database-type: repository
+#      service-bean-name: transactionRepository
+#      target-database-type: art.artifact_batch.application.model.Transaction
+#
+#
+#
+#
+## Configuration Repository Writer
+##batch:
+##  output:
+##    database:
+##      writer-type: REPOSITORY
+##      targetType: art.artifact_batch.application.model.Transaction
+##      service-bean-name: transactionRepository
